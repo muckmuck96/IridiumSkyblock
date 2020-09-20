@@ -318,24 +318,34 @@ public class Utils {
     }
 
     public static boolean canBuy(Player p, double vault, int crystals) {
+        return canBuy(p, vault, crystals, false);
+    }
+
+    public static boolean canBuy(Player p, double vault, int crystals, boolean checkOnly) {
         User u = User.getUser(p);
         if (u.getIsland() != null) {
             if (Vault.econ != null) {
                 if (Vault.econ.getBalance(p) >= vault && u.getIsland().getCrystals() >= crystals) {
-                    Vault.econ.withdrawPlayer(p, vault);
-                    u.getIsland().setCrystals(u.getIsland().getCrystals() - crystals);
+                    if(!checkOnly) {
+                        Vault.econ.withdrawPlayer(p, vault);
+                        u.getIsland().setCrystals(u.getIsland().getCrystals() - crystals);
+                    }
                     return true;
                 }
             }
             if (u.getIsland().money >= vault && u.getIsland().getCrystals() >= crystals) {
-                u.getIsland().money -= vault;
-                u.getIsland().setCrystals(u.getIsland().getCrystals() - crystals);
+                if(!checkOnly) {
+                    u.getIsland().money -= vault;
+                    u.getIsland().setCrystals(u.getIsland().getCrystals() - crystals);
+                }
                 return true;
             }
         }
         if (Vault.econ != null) {
             if (Vault.econ.getBalance(p) >= vault && crystals == 0) {
-                Vault.econ.withdrawPlayer(p, vault);
+                if(!checkOnly) {
+                    Vault.econ.withdrawPlayer(p, vault);
+                }
                 return true;
             }
         }
