@@ -4,6 +4,7 @@ import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.spawn.EssentialsSpawn;
 import com.iridium.iridiumskyblock.api.IslandCreateEvent;
 import com.iridium.iridiumskyblock.api.IslandDeleteEvent;
+import com.iridium.iridiumskyblock.api.IslandRegenEvent;
 import com.iridium.iridiumskyblock.configs.*;
 import com.iridium.iridiumskyblock.configs.Missions.Mission;
 import com.iridium.iridiumskyblock.configs.Missions.MissionData;
@@ -724,6 +725,11 @@ public class Island {
     }
 
     public void pasteSchematic(boolean deleteBlocks) {
+        IslandRegenEvent islandRegenEvent = new IslandRegenEvent(this);
+        Bukkit.getPluginManager().callEvent(islandRegenEvent);
+        if(islandRegenEvent.isCancelled()) {
+            return;
+        }
         Calendar c = Calendar.getInstance();
         c.add(Calendar.SECOND, IridiumSkyblock.getConfiguration().regenCooldown);
         lastRegen = c.getTime();
