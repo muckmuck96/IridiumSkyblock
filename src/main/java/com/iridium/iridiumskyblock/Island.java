@@ -689,7 +689,7 @@ public class Island {
             if (expBooster > 0) expBooster--;
             if (flightBooster == 1) {
                 for (String player : members) {
-                    Player p = Bukkit.getPlayer(player);
+                    Player p = player.contains("-") ? Bukkit.getPlayer(UUID.fromString(player)) : Bukkit.getPlayer(player);
                     if (p != null) {
                         if ((!p.hasPermission("IridiumSkyblock.Fly") && !p.hasPermission("iridiumskyblock.fly")) && p.getGameMode().equals(GameMode.SURVIVAL)) {
                             p.setAllowFlight(false);
