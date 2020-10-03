@@ -5,6 +5,7 @@ import com.earth2me.essentials.spawn.EssentialsSpawn;
 import com.iridium.iridiumskyblock.api.IslandCreateEvent;
 import com.iridium.iridiumskyblock.api.IslandDeleteEvent;
 import com.iridium.iridiumskyblock.api.IslandRegenEvent;
+import com.iridium.iridiumskyblock.api.IslandWorthCalculatedEvent;
 import com.iridium.iridiumskyblock.api.MissionCompleteEvent;
 import com.iridium.iridiumskyblock.configs.*;
 import com.iridium.iridiumskyblock.configs.Missions.Mission;
@@ -96,6 +97,8 @@ public class Island {
     private transient BankGUI bankGUI;
     @Getter
     private transient BiomeGUI biomeGUI;
+    @Getter
+    private transient VisitorGUI visitorGUI;
 
     @Getter
     private int id;
@@ -188,6 +191,9 @@ public class Island {
     public transient Set<Location> failedGenerators;
 
     private Date lastRegen;
+
+    private List<Player> playersOnIsland;
+    private long lastPlayerCaching;
 
 
     private static final transient boolean ISFLAT = XMaterial.supports(13);
@@ -332,9 +338,7 @@ public class Island {
                 });
             }
         }
-        Bukkit.getScheduler().
-
-                runTaskLater(IridiumSkyblock.getInstance(), this::calculateIslandValue, 20);
+        Bukkit.getScheduler().runTaskLater(IridiumSkyblock.getInstance(), this::calculateIslandValue, 20);
     }
 
     public void resetMissions() {
@@ -450,7 +454,7 @@ public class Island {
         final int vaultReward = level.vaultReward;
         this.crystals += crystalReward;
         this.money += vaultReward;
-        Bukkit.getPluginManager().callEvent(new MissionCompleteEvent(missionName, level.type, levelProgress));
+        Bukkit.getPluginManager().callEvent(new MissionCompleteEvent(this, missionName, level.type, levelProgress));
         final Messages messages = IridiumSkyblock.getMessages();
         final String titleMessage = messages.missionComplete
                 .replace("%mission%", missionName)
@@ -583,6 +587,10 @@ public class Island {
             }
         }
         this.value += this.extravalue;
+
+        IslandWorthCalculatedEvent islandWorthCalculatedEvent = new IslandWorthCalculatedEvent(this, this.value);
+        Bukkit.getPluginManager().callEvent(islandWorthCalculatedEvent);
+        this.value = islandWorthCalculatedEvent.getIslandWorth();
     }
 
     public void addWarp(Player player, Location location, String name, String password) {
@@ -669,7 +677,8 @@ public class Island {
             members = new HashSet<>();
             members.add(owner);
         }
-
+        this.playersOnIsland = new ArrayList<>();
+        this.lastPlayerCaching = 0L;
         upgradeGUI = new UpgradeGUI(this);
         boosterGUI = new BoosterGUI(this);
         missionsGUI = new MissionsGUI(this);
@@ -683,6 +692,8 @@ public class Island {
         coopGUI = new CoopGUI(this);
         bankGUI = new BankGUI(this);
         biomeGUI = new BiomeGUI(this);
+        visitorGUI = new VisitorGUI(this);
+
         failedGenerators = new HashSet<>();
         coopInvites = new HashSet<>();
         boosterid = Bukkit.getScheduler().scheduleAsyncRepeatingTask(IridiumSkyblock.getInstance(), () -> {
@@ -1035,13 +1046,20 @@ public class Island {
     }
 
     public List<Player> getPlayersOnIsland() {
-        List<Player> players = new ArrayList<>();
+        if (System.currentTimeMillis() >= lastPlayerCaching + (IridiumSkyblock.getConfiguration().playersOnIslandRefreshTime * 1000L)) {
+            reloadPlayersOnIsland();
+        }
+        return playersOnIsland;
+    }
+
+    public void reloadPlayersOnIsland() {
+        lastPlayerCaching = System.currentTimeMillis();
+        playersOnIsland.clear();
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (isInIsland(p.getLocation())) {
-                players.add(p);
+                playersOnIsland.add(p);
             }
         }
-        return players;
     }
 
     public void spawnPlayer(Player player) {

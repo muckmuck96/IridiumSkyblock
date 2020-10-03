@@ -5,9 +5,10 @@ import com.iridium.iridiumskyblock.Role;
 import com.iridium.iridiumskyblock.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
-public class IslandDemoteEvent extends IslandEvent {
+public class IslandDemoteEvent extends IslandEvent implements Cancellable {
     @Getter @NotNull private final User target;
     @Getter @NotNull private final User demoter;
     @Getter @NotNull private final Role role;

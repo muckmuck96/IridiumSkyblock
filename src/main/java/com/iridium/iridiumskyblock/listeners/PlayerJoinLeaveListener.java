@@ -1,10 +1,6 @@
 package com.iridium.iridiumskyblock.listeners;
 
-import com.iridium.iridiumskyblock.IridiumSkyblock;
-import com.iridium.iridiumskyblock.Island;
-import com.iridium.iridiumskyblock.IslandManager;
-import com.iridium.iridiumskyblock.User;
-import com.iridium.iridiumskyblock.Utils;
+import com.iridium.iridiumskyblock.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -42,7 +38,8 @@ public class PlayerJoinLeaveListener implements Listener {
                 player.setFlying(false);
                 user.flying = false;
             }
-            user.bypassing = false;
+            if (IridiumSkyblock.getConfiguration().disableBypassOnJoin || !player.hasPermission(IridiumSkyblock.getCommands().bypassCommand.getPermission()))
+                user.bypassing = false;
 
             final Island island = islandManager.getIslandViaLocation(location);
             if (island == null) return;

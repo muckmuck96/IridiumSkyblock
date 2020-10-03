@@ -19,7 +19,7 @@ public class Config {
     public String placeholderDefaultValue = "N/A";
     public boolean createCooldown = true;
     public boolean doIslandBackup = true;
-    public boolean islandShop = true;
+    public boolean islandShop = false;
     public boolean automaticUpdate = true;
     public boolean defaultIslandPublic = true;
     public boolean netherIslands = true;
@@ -35,11 +35,15 @@ public class Config {
     public boolean allowExplosions = true;
     public boolean disablePvPBetweenIslandMembers = true;
     public boolean disablePvPOnIslands = true;
+    public boolean allowMobGuestTargeting = true;
+    public boolean disableBypassOnJoin = true;
     public int deleteBackupsAfterDays = 7;
     public int regenCooldown = 3600;
     public int distance = 151;
     public int backupIntervalMinutes = 60;
     public int valueUpdateInterval = 20 * 30;
+    public int playersOnIslandRefreshTime = 15;
+    public int intervalBetweenMobTarget = 15;
     public double valuePerLevel = 100.00;
     public double dailyMoneyInterest = 0.5;
     public double dailyCrystalsInterest = 5;
